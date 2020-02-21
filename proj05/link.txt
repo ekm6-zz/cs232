@@ -1,0 +1,5 @@
+client:
+https://docs.oracle.com/javase/tutorial/displayCode.html?code=https://docs.oracle.com/javase/tutorial/networking/sockets/examples/EchoClient.java
+
+server:
+http://www.tutorialspoint.com/javaexamples/net_multisoc.htm

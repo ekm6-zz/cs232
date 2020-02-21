@@ -1,0 +1,571 @@
+Script started on Wed 24 Apr 2019 09:30:59 AM EDT
+ekm6@maroon32:~$ cd 2019/
+ekm6@maroon32:~/2019$ du -sh
+2.0M	.
+ekm6@maroon32:~/2019$ du
+32	./partC/goodbye
+272	./partC/coreTest
+4	./partC/.secret/S2
+272	./partC/.secret/testCore
+32	./partC/.secret/S3/S3a/goodbye
+64	./partC/.secret/S3/S3a
+52	./partC/.secret/S3/S3b
+136	./partC/.secret/S3/S3c
+256	./partC/.secret/S3
+52	./partC/.secret/S1/S1b
+136	./partC/.secret/S1/S1c
+32	./partC/.secret/S1/S1a/goodbye
+64	./partC/.secret/S1/S1a
+256	./partC/.secret/S1
+792	./partC/.secret
+1128	./partC
+4	./partB/B2
+136	./partB/B1/B1c
+32	./partB/B1/B1a/goodbye
+64	./partB/B1/B1a
+52	./partB/B1/B1b
+256	./partB/B1
+52	./partB/B3/B3b
+136	./partB/B3/B3c
+32	./partB/B3/B3a/goodbye
+64	./partB/B3/B3a
+256	./partB/B3
+520	./partB
+32	./partA/goodbye
+272	./partA/coreTest
+336	./partA
+1988	.
+ekm6@maroon32:~/2019$ ./clean partA
+Directory:  partA/coreTest
+File:  core
+File:  partA/coreTest/core was deleted
+File:  coreTest
+File:  partA/coreTest/coreTest was deleted
+File:  coreTest.c
+File:  partA/coreTest/coreTest.c was deleted
+File:  Makefile
+File:  partA/coreTest/Makefile was deleted
+Directory:  partA/goodbye
+File:  goodbye
+File:  partA/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  partA/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  partA/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  partA/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  partA/goodbye/Makefile was deleted
+File:  hello
+File:  partA/hello was deleted
+File:  #hello.c#
+File:  partA/#hello.c# was deleted
+File:  hello.c
+File:  partA/hello.c was deleted
+File:  hello.c~
+File:  partA/hello.c~ was deleted
+File:  Makefile
+File:  partA/Makefile was deleted
+ekm6@maroon32:~/2019$ du -sh
+1.7M	.
+ekm6@maroon32:~/2019$ du
+32	./partC/goodbye
+272	./partC/coreTest
+4	./partC/.secret/S2
+272	./partC/.secret/testCore
+32	./partC/.secret/S3/S3a/goodbye
+64	./partC/.secret/S3/S3a
+52	./partC/.secret/S3/S3b
+136	./partC/.secret/S3/S3c
+256	./partC/.secret/S3
+52	./partC/.secret/S1/S1b
+136	./partC/.secret/S1/S1c
+32	./partC/.secret/S1/S1a/goodbye
+64	./partC/.secret/S1/S1a
+256	./partC/.secret/S1
+792	./partC/.secret
+1128	./partC
+4	./partB/B2
+136	./partB/B1/B1c
+32	./partB/B1/B1a/goodbye
+64	./partB/B1/B1a
+52	./partB/B1/B1b
+256	./partB/B1
+52	./partB/B3/B3b
+136	./partB/B3/B3c
+32	./partB/B3/B3a/goodbye
+64	./partB/B3/B3a
+256	./partB/B3
+520	./partB
+4	./partA/goodbye
+4	./partA/coreTest
+12	./partA
+1668	.
+ekm6@maroon32:~/2019$ , ./clean
+File:  clean
+File:  ./clean was deleted
+Directory:  ./partA
+Directory:  ./partA/coreTest
+Directory:  ./partA/goodbye
+Directory:  ./partB
+Directory:  ./partB/B1
+Directory:  ./partB/B1/B1a
+Directory:  ./partB/B1/B1a/goodbye
+File:  goodbye
+File:  ./partB/B1/B1a/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B1/B1a/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  ./partB/B1/B1a/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  ./partB/B1/B1a/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  ./partB/B1/B1a/goodbye/Makefile was deleted
+File:  hello
+File:  ./partB/B1/B1a/hello was deleted
+File:  #hello.c#
+File:  ./partB/B1/B1a/#hello.c# was deleted
+File:  hello.c
+File:  ./partB/B1/B1a/hello.c was deleted
+File:  hello.c~
+File:  ./partB/B1/B1a/hello.c~ was deleted
+File:  Makefile
+File:  ./partB/B1/B1a/Makefile was deleted
+Directory:  ./partB/B1/B1b
+File:  goodbye
+File:  ./partB/B1/B1b/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B1/B1b/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partB/B1/B1b/goodbye.c~ was deleted
+File:  #hay.c#
+File:  ./partB/B1/B1b/#hay.c# was deleted
+File:  hay.c
+File:  ./partB/B1/B1b/hay.c was deleted
+File:  hay.c~
+File:  ./partB/B1/B1b/hay.c~ was deleted
+File:  #hey.c#
+File:  ./partB/B1/B1b/#hey.c# was deleted
+File:  hey.c
+File:  ./partB/B1/B1b/hey.c was deleted
+File:  hey.c~
+File:  ./partB/B1/B1b/hey.c~ was deleted
+File:  Makefile
+File:  ./partB/B1/B1b/Makefile was deleted
+Directory:  ./partB/B1/B1c
+File:  goodbye
+File:  ./partB/B1/B1c/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B1/B1c/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partB/B1/B1c/goodbye.c~ was deleted
+File:  hay
+File:  ./partB/B1/B1c/hay was deleted
+File:  #hay.c#
+File:  ./partB/B1/B1c/#hay.c# was deleted
+File:  hay.c
+File:  ./partB/B1/B1c/hay.c was deleted
+File:  hay.c~
+File:  ./partB/B1/B1c/hay.c~ was deleted
+File:  #hay.h#
+File:  ./partB/B1/B1c/#hay.h# was deleted
+File:  hay.h
+File:  ./partB/B1/B1c/hay.h was deleted
+File:  hay.h~
+File:  ./partB/B1/B1c/hay.h~ was deleted
+File:  hay.o
+File:  ./partB/B1/B1c/hay.o was deleted
+File:  hey
+File:  ./partB/B1/B1c/hey was deleted
+File:  #hey.c#
+File:  ./partB/B1/B1c/#hey.c# was deleted
+File:  hey.c
+File:  ./partB/B1/B1c/hey.c was deleted
+File:  hey.c~
+File:  ./partB/B1/B1c/hey.c~ was deleted
+File:  #hey.h#
+File:  ./partB/B1/B1c/#hey.h# was deleted
+File:  hey.h
+File:  ./partB/B1/B1c/hey.h was deleted
+File:  hey.h~
+File:  ./partB/B1/B1c/hey.h~ was deleted
+File:  hey.o
+File:  ./partB/B1/B1c/hey.o was deleted
+File:  main
+File:  ./partB/B1/B1c/main was deleted
+File:  #main.c#
+File:  ./partB/B1/B1c/#main.c# was deleted
+File:  main.c
+File:  ./partB/B1/B1c/main.c was deleted
+File:  main.c~
+File:  ./partB/B1/B1c/main.c~ was deleted
+File:  main.o
+File:  ./partB/B1/B1c/main.o was deleted
+File:  Makefile
+File:  ./partB/B1/B1c/Makefile was deleted
+Directory:  ./partB/B2
+Directory:  ./partB/B3
+Directory:  ./partB/B3/B3a
+Directory:  ./partB/B3/B3a/goodbye
+File:  goodbye
+File:  ./partB/B3/B3a/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B3/B3a/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  ./partB/B3/B3a/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  ./partB/B3/B3a/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  ./partB/B3/B3a/goodbye/Makefile was deleted
+File:  hello
+File:  ./partB/B3/B3a/hello was deleted
+File:  #hello.c#
+File:  ./partB/B3/B3a/#hello.c# was deleted
+File:  hello.c
+File:  ./partB/B3/B3a/hello.c was deleted
+File:  hello.c~
+File:  ./partB/B3/B3a/hello.c~ was deleted
+File:  Makefile
+File:  ./partB/B3/B3a/Makefile was deleted
+Directory:  ./partB/B3/B3b
+File:  goodbye
+File:  ./partB/B3/B3b/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B3/B3b/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partB/B3/B3b/goodbye.c~ was deleted
+File:  #hay.c#
+File:  ./partB/B3/B3b/#hay.c# was deleted
+File:  hay.c
+File:  ./partB/B3/B3b/hay.c was deleted
+File:  hay.c~
+File:  ./partB/B3/B3b/hay.c~ was deleted
+File:  #hey.c#
+File:  ./partB/B3/B3b/#hey.c# was deleted
+File:  hey.c
+File:  ./partB/B3/B3b/hey.c was deleted
+File:  hey.c~
+File:  ./partB/B3/B3b/hey.c~ was deleted
+File:  Makefile
+File:  ./partB/B3/B3b/Makefile was deleted
+Directory:  ./partB/B3/B3c
+File:  goodbye
+File:  ./partB/B3/B3c/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partB/B3/B3c/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partB/B3/B3c/goodbye.c~ was deleted
+File:  hay
+File:  ./partB/B3/B3c/hay was deleted
+File:  #hay.c#
+File:  ./partB/B3/B3c/#hay.c# was deleted
+File:  hay.c
+File:  ./partB/B3/B3c/hay.c was deleted
+File:  hay.c~
+File:  ./partB/B3/B3c/hay.c~ was deleted
+File:  #hay.h#
+File:  ./partB/B3/B3c/#hay.h# was deleted
+File:  hay.h
+File:  ./partB/B3/B3c/hay.h was deleted
+File:  hay.h~
+File:  ./partB/B3/B3c/hay.h~ was deleted
+File:  hay.o
+File:  ./partB/B3/B3c/hay.o was deleted
+File:  hey
+File:  ./partB/B3/B3c/hey was deleted
+File:  #hey.c#
+File:  ./partB/B3/B3c/#hey.c# was deleted
+File:  hey.c
+File:  ./partB/B3/B3c/hey.c was deleted
+File:  hey.c~
+File:  ./partB/B3/B3c/hey.c~ was deleted
+File:  #hey.h#
+File:  ./partB/B3/B3c/#hey.h# was deleted
+File:  hey.h
+File:  ./partB/B3/B3c/hey.h was deleted
+File:  hey.h~
+File:  ./partB/B3/B3c/hey.h~ was deleted
+File:  hey.o
+File:  ./partB/B3/B3c/hey.o was deleted
+File:  main
+File:  ./partB/B3/B3c/main was deleted
+File:  #main.c#
+File:  ./partB/B3/B3c/#main.c# was deleted
+File:  main.c
+File:  ./partB/B3/B3c/main.c was deleted
+File:  main.c~
+File:  ./partB/B3/B3c/main.c~ was deleted
+File:  main.o
+File:  ./partB/B3/B3c/main.o was deleted
+File:  Makefile
+File:  ./partB/B3/B3c/Makefile was deleted
+Directory:  ./partC
+Directory:  ./partC/coreTest
+File:  core
+File:  ./partC/coreTest/core was deleted
+File:  coreTest
+File:  ./partC/coreTest/coreTest was deleted
+File:  coreTest.c
+File:  ./partC/coreTest/coreTest.c was deleted
+File:  Makefile
+File:  ./partC/coreTest/Makefile was deleted
+Directory:  ./partC/goodbye
+File:  goodbye
+File:  ./partC/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  ./partC/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  ./partC/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  ./partC/goodbye/Makefile was deleted
+File:  hello
+File:  ./partC/hello was deleted
+File:  #hello.c#
+File:  ./partC/#hello.c# was deleted
+File:  hello.c
+File:  ./partC/hello.c was deleted
+File:  hello.c~
+File:  ./partC/hello.c~ was deleted
+File:  Makefile
+File:  ./partC/Makefile was deleted
+Directory:  ./partC/.secret
+Directory:  ./partC/.secret/S1
+Directory:  ./partC/.secret/S1/S1a
+Directory:  ./partC/.secret/S1/S1a/goodbye
+File:  goodbye
+File:  ./partC/.secret/S1/S1a/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S1/S1a/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  ./partC/.secret/S1/S1a/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S1/S1a/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S1/S1a/goodbye/Makefile was deleted
+File:  hello
+File:  ./partC/.secret/S1/S1a/hello was deleted
+File:  #hello.c#
+File:  ./partC/.secret/S1/S1a/#hello.c# was deleted
+File:  hello.c
+File:  ./partC/.secret/S1/S1a/hello.c was deleted
+File:  hello.c~
+File:  ./partC/.secret/S1/S1a/hello.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S1/S1a/Makefile was deleted
+Directory:  ./partC/.secret/S1/S1b
+File:  goodbye
+File:  ./partC/.secret/S1/S1b/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S1/S1b/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S1/S1b/goodbye.c~ was deleted
+File:  #hay.c#
+File:  ./partC/.secret/S1/S1b/#hay.c# was deleted
+File:  hay.c
+File:  ./partC/.secret/S1/S1b/hay.c was deleted
+File:  hay.c~
+File:  ./partC/.secret/S1/S1b/hay.c~ was deleted
+File:  #hey.c#
+File:  ./partC/.secret/S1/S1b/#hey.c# was deleted
+File:  hey.c
+File:  ./partC/.secret/S1/S1b/hey.c was deleted
+File:  hey.c~
+File:  ./partC/.secret/S1/S1b/hey.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S1/S1b/Makefile was deleted
+Directory:  ./partC/.secret/S1/S1c
+File:  goodbye
+File:  ./partC/.secret/S1/S1c/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S1/S1c/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S1/S1c/goodbye.c~ was deleted
+File:  hay
+File:  ./partC/.secret/S1/S1c/hay was deleted
+File:  #hay.c#
+File:  ./partC/.secret/S1/S1c/#hay.c# was deleted
+File:  hay.c
+File:  ./partC/.secret/S1/S1c/hay.c was deleted
+File:  hay.c~
+File:  ./partC/.secret/S1/S1c/hay.c~ was deleted
+File:  #hay.h#
+File:  ./partC/.secret/S1/S1c/#hay.h# was deleted
+File:  hay.h
+File:  ./partC/.secret/S1/S1c/hay.h was deleted
+File:  hay.h~
+File:  ./partC/.secret/S1/S1c/hay.h~ was deleted
+File:  hay.o
+File:  ./partC/.secret/S1/S1c/hay.o was deleted
+File:  hey
+File:  ./partC/.secret/S1/S1c/hey was deleted
+File:  #hey.c#
+File:  ./partC/.secret/S1/S1c/#hey.c# was deleted
+File:  hey.c
+File:  ./partC/.secret/S1/S1c/hey.c was deleted
+File:  hey.c~
+File:  ./partC/.secret/S1/S1c/hey.c~ was deleted
+File:  #hey.h#
+File:  ./partC/.secret/S1/S1c/#hey.h# was deleted
+File:  hey.h
+File:  ./partC/.secret/S1/S1c/hey.h was deleted
+File:  hey.h~
+File:  ./partC/.secret/S1/S1c/hey.h~ was deleted
+File:  hey.o
+File:  ./partC/.secret/S1/S1c/hey.o was deleted
+File:  main
+File:  ./partC/.secret/S1/S1c/main was deleted
+File:  #main.c#
+File:  ./partC/.secret/S1/S1c/#main.c# was deleted
+File:  main.c
+File:  ./partC/.secret/S1/S1c/main.c was deleted
+File:  main.c~
+File:  ./partC/.secret/S1/S1c/main.c~ was deleted
+File:  main.o
+File:  ./partC/.secret/S1/S1c/main.o was deleted
+File:  Makefile
+File:  ./partC/.secret/S1/S1c/Makefile was deleted
+Directory:  ./partC/.secret/S2
+Directory:  ./partC/.secret/S3
+Directory:  ./partC/.secret/S3/S3a
+Directory:  ./partC/.secret/S3/S3a/goodbye
+File:  goodbye
+File:  ./partC/.secret/S3/S3a/goodbye/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S3/S3a/goodbye/#goodbye.c# was deleted
+File:  goodbye.c
+File:  ./partC/.secret/S3/S3a/goodbye/goodbye.c was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S3/S3a/goodbye/goodbye.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S3/S3a/goodbye/Makefile was deleted
+File:  hello
+File:  ./partC/.secret/S3/S3a/hello was deleted
+File:  #hello.c#
+File:  ./partC/.secret/S3/S3a/#hello.c# was deleted
+File:  hello.c
+File:  ./partC/.secret/S3/S3a/hello.c was deleted
+File:  hello.c~
+File:  ./partC/.secret/S3/S3a/hello.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S3/S3a/Makefile was deleted
+Directory:  ./partC/.secret/S3/S3b
+File:  goodbye
+File:  ./partC/.secret/S3/S3b/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S3/S3b/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S3/S3b/goodbye.c~ was deleted
+File:  #hay.c#
+File:  ./partC/.secret/S3/S3b/#hay.c# was deleted
+File:  hay.c
+File:  ./partC/.secret/S3/S3b/hay.c was deleted
+File:  hay.c~
+File:  ./partC/.secret/S3/S3b/hay.c~ was deleted
+File:  #hey.c#
+File:  ./partC/.secret/S3/S3b/#hey.c# was deleted
+File:  hey.c
+File:  ./partC/.secret/S3/S3b/hey.c was deleted
+File:  hey.c~
+File:  ./partC/.secret/S3/S3b/hey.c~ was deleted
+File:  Makefile
+File:  ./partC/.secret/S3/S3b/Makefile was deleted
+Directory:  ./partC/.secret/S3/S3c
+File:  goodbye
+File:  ./partC/.secret/S3/S3c/goodbye was deleted
+File:  #goodbye.c#
+File:  ./partC/.secret/S3/S3c/#goodbye.c# was deleted
+File:  goodbye.c~
+File:  ./partC/.secret/S3/S3c/goodbye.c~ was deleted
+File:  hay
+File:  ./partC/.secret/S3/S3c/hay was deleted
+File:  #hay.c#
+File:  ./partC/.secret/S3/S3c/#hay.c# was deleted
+File:  hay.c
+File:  ./partC/.secret/S3/S3c/hay.c was deleted
+File:  hay.c~
+File:  ./partC/.secret/S3/S3c/hay.c~ was deleted
+File:  #hay.h#
+File:  ./partC/.secret/S3/S3c/#hay.h# was deleted
+File:  hay.h
+File:  ./partC/.secret/S3/S3c/hay.h was deleted
+File:  hay.h~
+File:  ./partC/.secret/S3/S3c/hay.h~ was deleted
+File:  hay.o
+File:  ./partC/.secret/S3/S3c/hay.o was deleted
+File:  hey
+File:  ./partC/.secret/S3/S3c/hey was deleted
+File:  #hey.c#
+File:  ./partC/.secret/S3/S3c/#hey.c# was deleted
+File:  hey.c
+File:  ./partC/.secret/S3/S3c/hey.c was deleted
+File:  hey.c~
+File:  ./partC/.secret/S3/S3c/hey.c~ was deleted
+File:  #hey.h#
+File:  ./partC/.secret/S3/S3c/#hey.h# was deleted
+File:  hey.h
+File:  ./partC/.secret/S3/S3c/hey.h was deleted
+File:  hey.h~
+File:  ./partC/.secret/S3/S3c/hey.h~ was deleted
+File:  hey.o
+File:  ./partC/.secret/S3/S3c/hey.o was deleted
+File:  main
+File:  ./partC/.secret/S3/S3c/main was deleted
+File:  #main.c#
+File:  ./partC/.secret/S3/S3c/#main.c# was deleted
+File:  main.c
+File:  ./partC/.secret/S3/S3c/main.c was deleted
+File:  main.c~
+File:  ./partC/.secret/S3/S3c/main.c~ was deleted
+File:  main.o
+File:  ./partC/.secret/S3/S3c/main.o was deleted
+File:  Makefile
+File:  ./partC/.secret/S3/S3c/Makefile was deleted
+Directory:  ./partC/.secret/testCore
+File:  core
+File:  ./partC/.secret/testCore/core was deleted
+File:  coreTest
+File:  ./partC/.secret/testCore/coreTest was deleted
+File:  coreTest.c
+File:  ./partC/.secret/testCore/coreTest.c was deleted
+File:  Makefile
+File:  ./partC/.secret/testCore/Makefile was deleted
+ekm6@maroon32:~/2019$ du -sh
+128K	.
+ekm6@maroon32:~/2019$ du
+4	./partC/goodbye
+4	./partC/coreTest
+4	./partC/.secret/S2
+4	./partC/.secret/testCore
+4	./partC/.secret/S3/S3a/goodbye
+8	./partC/.secret/S3/S3a
+4	./partC/.secret/S3/S3b
+4	./partC/.secret/S3/S3c
+20	./partC/.secret/S3
+4	./partC/.secret/S1/S1b
+4	./partC/.secret/S1/S1c
+4	./partC/.secret/S1/S1a/goodbye
+8	./partC/.secret/S1/S1a
+20	./partC/.secret/S1
+52	./partC/.secret
+64	./partC
+4	./partB/B2
+4	./partB/B1/B1c
+4	./partB/B1/B1a/goodbye
+8	./partB/B1/B1a
+4	./partB/B1/B1b
+20	./partB/B1
+4	./partB/B3/B3b
+4	./partB/B3/B3c
+4	./partB/B3/B3a/goodbye
+8	./partB/B3/B3a
+20	./partB/B3
+48	./partB
+4	./partA/goodbye
+4	./partA/coreTest
+12	./partA
+128	.
+ekm6@maroon32:~/2019$ exit
+
+Script done on Wed 24 Apr 2019 09:32:55 AM EDT

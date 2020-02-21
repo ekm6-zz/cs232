@@ -1,0 +1,44 @@
+Script started on Wed 08 May 2019 08:06:00 PM EDT
+ekm6@gold12:~/CS232/proj05$ s make Client. 
+make: Nothing to be done for 'Client'.
+ekm6@gold12:~/CS232/proj05$ java Client gold14 9999
+Welcome to the the Ceaser Cipher v1.0
+Enter the rotation number:
+1
+Ciphered: 1
+a
+Ciphered: b
+c
+Ciphered: d
+d
+Ciphered: e
+fish
+Ciphered: gjti
+quit
+ekm6@gold12:~/CS232/proj05$ java Client gold14 9999
+Welcome to the the Ceaser Cipher v1.0
+Enter the rotation number:
+d g 3
+Ciphered: 3
+dog
+Ciphered: grj
+cat
+Ciphered: fdw
+fish    bunny
+Ciphered: exqqb
+quit
+ekm6@gold12:~/CS232/proj05$ java Client gold14 9999
+Welcome to the the Ceaser Cipher v1.0
+Enter the rotation number:
+45
+Ciphered: Value is not within 1-26. Closing thread....
+quit
+ekm6@gold12:~/CS232/proj05$ java Client gold14 9999
+Welcome to the the Ceaser Cipher v1.0
+Enter the rotation number:
+fish
+Ciphered: Value is not an integer. Closing thread...
+quit
+ekm6@gold12:~/CS232/proj05$ exit
+
+Script done on Wed 08 May 2019 08:07:47 PM EDT

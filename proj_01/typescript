@@ -1,0 +1,1104 @@
+Script started on Wed 13 Feb 2019 09:09:12 PM EST
+ekm6@gold21:~/CS232/proj_01$ ls
+callTimer.cpp  Debug  NanoTimer.h  typescript
+ekm6@gold21:~/CS232/proj_01$ car t *cpp *.h[1@.
+/* callTimer.cpp runs two sysyem calls
+ *  -fork() which creates a new UNIX process, and
+ *  -pthread_create() which creates a new POSIX thread.
+ * It also average time to run each Process
+ *
+ *  Created on: Feb 7, 2019
+ *  Author: Enoch Mwesigwa
+ */
+
+#include "NanoTimer.h"
+#include <iostream>
+#include <string>
+#include <string.h>
+#include <cstdlib>
+#include <unistd.h>
+#include <pthread.h>
+#include  <sys/types.h>
+#include  <sys/ipc.h>
+#include  <sys/shm.h>
+using namespace std;
+
+/*Print hello
+ * @param: thread ID
+ * PostCondition: displays "hello" along with thread ID
+ */
+void *PrintHello(void *threadid) {
+	long tid;
+	tid = (long) threadid;
+	cout << "Hello from child thread (TID = " << tid << ")" << endl;
+	pthread_exit(NULL);
+}
+
+/* CallTimer
+ * @param: int, bool, bool
+ * Precondition: variables contain the # of times a a thread or proccess will
+ * be created as well whether or not they'll be created
+ * Post Condition: will display the average run time for the specified functions
+ */
+void callTimer(int counter, bool process, bool thread) {
+	NanoTimer timer;
+	// create shared memory key
+	key_t key = ftok("shmfile", 1);
+
+	// shmget returns an identifier in shmid (will be used to hold process run time)
+	double shmidProcess = shmget(key, 4 * sizeof(double), IPC_CREAT | 0666);\
+	//will hold thread run time
+	double tTime;
+
+	if (process == true) {
+		for (int i = 0; i < counter; i++) {
+			timer.start();
+			// create fork
+			pid_t PID = fork();
+			timer.stop();
+			double splitTime = timer.getTotalTime();
+			if (PID == 0) {
+				// shmat to attach to shared memory
+				double *pTime = (double*) shmat(shmidProcess, (void*) 0, 0);
+
+				*pTime += splitTime;
+
+				//detach from shared memory
+				shmdt(pTime);
+
+				exit(0);
+			}
+			cout << "Hello from the child process (PID = " << PID << ")"
+					<< endl;
+
+		}
+
+		timer.reset();
+		double *pTime = (double*) shmat(shmidProcess, (void*) 0, 0);
+		*pTime /= counter;
+		cout << "Average Split time for fork() was " << *pTime << endl;
+		shmdt(pTime);
+
+	}
+
+	if (thread == true) {
+
+		for (int i = 0; i < counter; i++) {
+			pthread_t threads[2];
+			int rc;
+			timer.start();
+			rc = pthread_create(&threads[1], NULL, PrintHello, (void *) i);
+			timer.stop();
+			tTime += timer.getTotalTime();
+
+			//check if thread was created
+			if (rc) {
+				cout << "Error:unable to create thread," << rc << endl;
+				exit(-1);
+			}
+		}
+
+		tTime /= counter;
+		cout << "Average Split time for Thread() was " << tTime << endl;
+	}
+
+}
+
+/* Main.cpp
+ * @param: int, char
+ * Precondition: variables contain arguements for the code
+ * Post Condition: will run the specified arguements or display and error.
+ */
+int main(int argc, char* argv[]) {
+	bool process, thread = false;
+	string arg;
+
+	int counter;
+	for (int i = 1; i < argc; i++) {
+		arg = argv[i];
+
+		if (arg.substr(0, 2) == "-r") {
+			counter = atoi(arg.substr(2).c_str());
+		}
+
+		if (arg == "-p" || arg == "-process") {
+			process = true;
+		}
+
+		if (arg == "-thread" || arg == "-t") {
+			thread = true;
+		}
+
+	}
+
+	if (process == false && thread == false) {
+		cerr << "Usage Error" << endl;
+		exit(0);
+
+	}
+
+	callTimer(counter, process, thread);
+	return 0;
+}
+/* NanoTimer.h provides a simple nano-scale timer.
+ *
+ * Begun by: John Kloosterman, for CS 232 at Calvin College.
+ * Enhanced by: Prof. Adams.
+ *
+ * To use this class, compile/link with the '-lrt' switch.
+ *
+ * In Eclipse: Project > Properties > GCC C++ Linker > Libraries > Libraries > +, add 'rt'
+ */
+
+#ifndef NANO_TIMER_H_
+#define NANO_TIMER_H_
+
+#include <ctime>        // timespec, clock_gettime(), etc.
+#include <iostream>     // C++ I/O
+#include <iomanip>      // setprecision()
+#include <sstream>      // stringstream for in-memory formatting
+using namespace std;
+
+class NanoTimer {
+public:
+	NanoTimer()                  { myTotalTime = 0.0; }
+	void start();
+	void stop();
+	void reset()                 { myTotalTime = 0.0; }
+    string asString() const;
+	double getTotalTime() const  { return myTotalTime; }
+	double asDouble() const;
+
+private:
+	struct timespec myStart;
+	struct timespec myEnd;
+	double myTotalTime;
+};
+
+
+/* start the timer.
+ * Postcondition: myStart contains the current time.
+ */
+inline
+void NanoTimer::start() {
+	clock_gettime(CLOCK_MONOTONIC, &myStart);
+}
+
+/* stop the timer.
+ * Postcondition: myStop contains the current time.
+ */
+inline
+void NanoTimer::stop() {
+	clock_gettime(CLOCK_MONOTONIC, &myEnd);
+	myTotalTime += this->asDouble();
+}
+
+const long NSEC_PER_SEC = 1000000000;
+
+/* Utility function to compute time differences
+ *  (used by asString(), asDouble(), etc.
+ * Receive: end, begin, two timespec values.
+ * Return: end - begin
+ * Based on: http://www.gnu.org/s/libc/manual/html_node/Elapsed-Time.html
+ */
+inline
+timespec operator-(const timespec& end, const timespec& begin)
+{
+	timespec result = begin;
+	/* Perform the carry for the later subtraction. */
+	if (end.tv_nsec < begin.tv_nsec) {
+		int nsec = (begin.tv_nsec - end.tv_nsec) / NSEC_PER_SEC + 1;
+		result.tv_nsec -= NSEC_PER_SEC * nsec;
+		result.tv_sec += nsec;
+	}
+	if (end.tv_nsec - begin.tv_nsec > NSEC_PER_SEC) {
+		int nsec = (end.tv_nsec - begin.tv_nsec) / NSEC_PER_SEC;
+		result.tv_nsec += NSEC_PER_SEC * nsec;
+		result.tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait.
+            tv_usec is certainly positive. */
+	result.tv_sec = end.tv_sec - result.tv_sec;
+	result.tv_nsec = end.tv_nsec - result.tv_nsec;
+
+	return result;
+}
+
+/* String representation.
+ * Return: the processor time (user + system) 
+ *    used in the interval between calls to start() and stop(),
+ *    with nanosecond granularity, as a string.
+ */
+inline
+string NanoTimer::asString() const {
+    struct timespec diff = myEnd - myStart;
+    stringstream sstr;
+    sstr << diff.tv_sec 
+         << ( (diff.tv_sec == 1) ? " sec, " : " secs, " )
+         << diff.tv_nsec 
+         << " nsecs";
+    return sstr.str();
+}
+
+/* Double representation.
+ * Return: the processor time (user + system)
+ *    used in the interval between calls to start() and stop(),
+ *    with nanosecond granularity, as a double.
+ */
+inline
+double NanoTimer::asDouble() const {
+   struct timespec diff = myEnd - myStart;
+   return double(diff.tv_sec) + double(diff.tv_nsec) / double(NSEC_PER_SEC);
+}
+
+
+/* ostream output
+ * Receive: out, an ostream; aTimer, a NanoTimer.
+ * Postcondition: aTimer's double representation
+ *      has been inserted into out.
+ * Return: out (for chaining).
+ */
+inline
+ostream& operator<<(ostream& out, const NanoTimer& aTimer) {
+   out << fixed << showpoint << setprecision(9)
+	   << aTimer.getTotalTime();
+   return out;
+}
+
+/* Utility function to display a timespec structure's values
+ *  (for debugging purposes)
+ */
+inline
+ostream& operator<<(ostream& out, const struct timespec& ts) {
+   out << ts.tv_sec 
+       << ( (ts.tv_sec == 1) ? " sec, " : " secs, " )
+       << ts.tv_nsec 
+       << " nsecs";
+   return out;
+}
+
+#endif /* NANO_TIMER_H_ */
+
+ekm6@gold21:~/CS232/proj_01$ cd Debug
+ekm6@gold21:~/CS232/proj_01/Debug$ make
+make: 'callTimer.o' is up to date.
+ekm6@gold21:~/CS232/proj_01/Debug$ ./prjo  po  oj_01 -r100
+Usage Error
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -t
+Hello from child thread (TID = Hello from child thread (TID = 03)Hello from child thread (TID = 2
+)
+Hello from child thread (TID = 1)
+)
+Hello from child thread (TID = 7)
+Hello from child thread (TID = 8)
+Hello from child thread (TID = 9)
+Hello from child thread (TID = 10)
+Hello from child thread (TID = Hello from child thread (TID = 11)
+Hello from child thread (TID = 5)
+Hello from child thread (TID = 6)Hello from child thread (TID = 
+12)
+4)
+Hello from child thread (TID = 13)
+Hello from child thread (TID = 14)
+Hello from child thread (TID = 15)
+Hello from child thread (TID = 16)
+Hello from child thread (TID = 17)
+Hello from child thread (TID = 18)
+Hello from child thread (TID = 19)
+Hello from child thread (TID = 20)
+Hello from child thread (TID = 21)
+Hello from child thread (TID = 22)
+Hello from child thread (TID = 23)
+Hello from child thread (TID = 24)
+Hello from child thread (TID = 25)
+Hello from child thread (TID = 26)
+Hello from child thread (TID = 27)
+Hello from child thread (TID = 28)
+Hello from child thread (TID = 29)
+Hello from child thread (TID = 30)
+Hello from child thread (TID = 31)
+Hello from child thread (TID = 32)
+Hello from child thread (TID = 33)
+Hello from child thread (TID = 34)
+Hello from child thread (TID = 35)
+Hello from child thread (TID = 36)
+Hello from child thread (TID = 37)
+Hello from child thread (TID = 38)
+Hello from child thread (TID = 39)
+Hello from child thread (TID = 40)
+Hello from child thread (TID = 41)
+Hello from child thread (TID = 42)
+Hello from child thread (TID = 43)
+Hello from child thread (TID = 44)
+Hello from child thread (TID = 45)
+Hello from child thread (TID = 46)
+Hello from child thread (TID = 47)
+Hello from child thread (TID = 48)
+Hello from child thread (TID = 49)
+Hello from child thread (TID = 50)
+Hello from child thread (TID = 51)
+Hello from child thread (TID = 52)
+Hello from child thread (TID = 53)
+Hello from child thread (TID = 54)
+Hello from child thread (TID = 55)
+Hello from child thread (TID = 56)
+Hello from child thread (TID = 57)
+Hello from child thread (TID = 58)
+Hello from child thread (TID = 59)
+Hello from child thread (TID = 60)
+Hello from child thread (TID = 61)
+Hello from child thread (TID = 62)
+Hello from child thread (TID = 63)
+Hello from child thread (TID = 64)
+Hello from child thread (TID = 65)
+Hello from child thread (TID = 66)
+Hello from child thread (TID = 67)
+Hello from child thread (TID = 68)
+Hello from child thread (TID = 69)
+Hello from child thread (TID = 70)
+Hello from child thread (TID = 71)
+Hello from child thread (TID = 72)
+Hello from child thread (TID = 73)
+Hello from child thread (TID = 74)
+Hello from child thread (TID = 75)
+Hello from child thread (TID = 76)
+Hello from child thread (TID = 77)
+Hello from child thread (TID = 78)
+Hello from child thread (TID = 79)
+Hello from child thread (TID = 80)
+Hello from child thread (TID = 81)
+Hello from child thread (TID = 82)
+Hello from child thread (TID = 83)
+Hello from child thread (TID = 84)
+Hello from child thread (TID = 85)
+Hello from child thread (TID = 86)
+Hello from child thread (TID = 87)
+Hello from child thread (TID = 88)
+Hello from child thread (TID = 89)
+Hello from child thread (TID = 90)
+Hello from child thread (TID = 91)
+Hello from child thread (TID = 92)
+Hello from child thread (TID = 93)
+Hello from child thread (TID = 94)
+Hello from child thread (TID = 95)
+Hello from child thread (TID = 96)
+Hello from child thread (TID = 97)
+Hello from child thread (TID = 98)
+Average Split time for Thread() was Hello from child thread (TID = 99)
+0.00357602
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -thread
+Hello from child thread (TID = 0)
+Hello from child thread (TID = 1)
+Hello from child thread (TID = Hello from child thread (TID = 3)
+Hello from child thread (TID = Hello from child thread (TID = 5)
+2)
+Hello from child thread (TID = 6)
+4)
+Hello from child thread (TID = 7)
+Hello from child thread (TID = 8)
+Hello from child thread (TID = 9)
+Hello from child thread (TID = 10)
+Hello from child thread (TID = 11)
+Hello from child thread (TID = 12)
+Hello from child thread (TID = 13)
+Hello from child thread (TID = 14)
+Hello from child thread (TID = 15)
+Hello from child thread (TID = 16)
+Hello from child thread (TID = 17)
+Hello from child thread (TID = 18)
+Hello from child thread (TID = 19)
+Hello from child thread (TID = 20)
+Hello from child thread (TID = 21)
+Hello from child thread (TID = 22)
+Hello from child thread (TID = 23)
+Hello from child thread (TID = 24)
+Hello from child thread (TID = 25)
+Hello from child thread (TID = 26)
+Hello from child thread (TID = 27)
+Hello from child thread (TID = 28)
+Hello from child thread (TID = 29)
+Hello from child thread (TID = 30)
+Hello from child thread (TID = 31)
+Hello from child thread (TID = 32)
+Hello from child thread (TID = 33)
+Hello from child thread (TID = 34)
+Hello from child thread (TID = 35)
+Hello from child thread (TID = 36)
+Hello from child thread (TID = 37)
+Hello from child thread (TID = 38)
+Hello from child thread (TID = 39)
+Hello from child thread (TID = 40)
+Hello from child thread (TID = 41)
+Hello from child thread (TID = 42)
+Hello from child thread (TID = 43)
+Hello from child thread (TID = 44)
+Hello from child thread (TID = 45)
+Hello from child thread (TID = 46)
+Hello from child thread (TID = 47)
+Hello from child thread (TID = 48)
+Hello from child thread (TID = 49)
+Hello from child thread (TID = 50)
+Hello from child thread (TID = 51)
+Hello from child thread (TID = 52)
+Hello from child thread (TID = 53)
+Hello from child thread (TID = 54)
+Hello from child thread (TID = 55)
+Hello from child thread (TID = 56)
+Hello from child thread (TID = 57)
+Hello from child thread (TID = 58)
+Hello from child thread (TID = 59)
+Hello from child thread (TID = 60)
+Hello from child thread (TID = 61)
+Hello from child thread (TID = 62)
+Hello from child thread (TID = 63)
+Hello from child thread (TID = 64)
+Hello from child thread (TID = 65)
+Hello from child thread (TID = 66)
+Hello from child thread (TID = 67)
+Hello from child thread (TID = 68)
+Hello from child thread (TID = 69)
+Hello from child thread (TID = 70)
+Hello from child thread (TID = 71)
+Hello from child thread (TID = 72)
+Hello from child thread (TID = 73)
+Hello from child thread (TID = 74)
+Hello from child thread (TID = 75)
+Hello from child thread (TID = 76)
+Hello from child thread (TID = 77)
+Hello from child thread (TID = 78)
+Hello from child thread (TID = 79)
+Hello from child thread (TID = 80)
+Hello from child thread (TID = 81)
+Hello from child thread (TID = 82)
+Hello from child thread (TID = 83)
+Hello from child thread (TID = 84)
+Hello from child thread (TID = 85)
+Hello from child thread (TID = 86)
+Hello from child thread (TID = 87)
+Hello from child thread (TID = 88)
+Hello from child thread (TID = 89)
+Hello from child thread (TID = 90)
+Hello from child thread (TID = 91)
+Hello from child thread (TID = 92)
+Hello from child thread (TID = 93)
+Hello from child thread (TID = 94)
+Hello from child thread (TID = 95)
+Hello from child thread (TID = 96)
+Hello from child thread (TID = 97)
+Hello from child thread (TID = 98)
+Average Split time for Thread() was Hello from child thread (TID = 99)
+0.00342545
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -thread      p
+Hello from the child process (PID = 444)
+Hello from the child process (PID = 445)
+Hello from the child process (PID = 446)
+Hello from the child process (PID = 447)
+Hello from the child process (PID = 449)
+Hello from the child process (PID = 450)
+Hello from the child process (PID = 451)
+Hello from the child process (PID = 452)
+Hello from the child process (PID = 453)
+Hello from the child process (PID = 454)
+Hello from the child process (PID = 455)
+Hello from the child process (PID = 456)
+Hello from the child process (PID = 457)
+Hello from the child process (PID = 458)
+Hello from the child process (PID = 459)
+Hello from the child process (PID = 460)
+Hello from the child process (PID = 461)
+Hello from the child process (PID = 462)
+Hello from the child process (PID = 463)
+Hello from the child process (PID = 464)
+Hello from the child process (PID = 465)
+Hello from the child process (PID = 466)
+Hello from the child process (PID = 467)
+Hello from the child process (PID = 468)
+Hello from the child process (PID = 469)
+Hello from the child process (PID = 470)
+Hello from the child process (PID = 471)
+Hello from the child process (PID = 472)
+Hello from the child process (PID = 473)
+Hello from the child process (PID = 474)
+Hello from the child process (PID = 475)
+Hello from the child process (PID = 476)
+Hello from the child process (PID = 477)
+Hello from the child process (PID = 478)
+Hello from the child process (PID = 479)
+Hello from the child process (PID = 480)
+Hello from the child process (PID = 481)
+Hello from the child process (PID = 482)
+Hello from the child process (PID = 483)
+Hello from the child process (PID = 484)
+Hello from the child process (PID = 485)
+Hello from the child process (PID = 486)
+Hello from the child process (PID = 487)
+Hello from the child process (PID = 488)
+Hello from the child process (PID = 489)
+Hello from the child process (PID = 490)
+Hello from the child process (PID = 491)
+Hello from the child process (PID = 492)
+Hello from the child process (PID = 493)
+Hello from the child process (PID = 494)
+Hello from the child process (PID = 495)
+Hello from the child process (PID = 496)
+Hello from the child process (PID = 497)
+Hello from the child process (PID = 498)
+Hello from the child process (PID = 499)
+Hello from the child process (PID = 500)
+Hello from the child process (PID = 501)
+Hello from the child process (PID = 502)
+Hello from the child process (PID = 503)
+Hello from the child process (PID = 504)
+Hello from the child process (PID = 505)
+Hello from the child process (PID = 506)
+Hello from the child process (PID = 507)
+Hello from the child process (PID = 508)
+Hello from the child process (PID = 509)
+Hello from the child process (PID = 510)
+Hello from the child process (PID = 511)
+Hello from the child process (PID = 512)
+Hello from the child process (PID = 513)
+Hello from the child process (PID = 514)
+Hello from the child process (PID = 515)
+Hello from the child process (PID = 516)
+Hello from the child process (PID = 517)
+Hello from the child process (PID = 518)
+Hello from the child process (PID = 519)
+Hello from the child process (PID = 520)
+Hello from the child process (PID = 521)
+Hello from the child process (PID = 522)
+Hello from the child process (PID = 523)
+Hello from the child process (PID = 524)
+Hello from the child process (PID = 525)
+Hello from the child process (PID = 526)
+Hello from the child process (PID = 527)
+Hello from the child process (PID = 528)
+Hello from the child process (PID = 529)
+Hello from the child process (PID = 530)
+Hello from the child process (PID = 531)
+Hello from the child process (PID = 532)
+Hello from the child process (PID = 533)
+Hello from the child process (PID = 534)
+Hello from the child process (PID = 535)
+Hello from the child process (PID = 536)
+Hello from the child process (PID = 537)
+Hello from the child process (PID = 538)
+Hello from the child process (PID = 539)
+Hello from the child process (PID = 540)
+Hello from the child process (PID = 541)
+Hello from the child process (PID = 542)
+Hello from the child process (PID = 543)
+Hello from the child process (PID = 544)
+Average Split time for fork() was 0.00519791
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -process
+Hello from the child process (PID = 547)
+Hello from the child process (PID = 548)
+Hello from the child process (PID = 549)
+Hello from the child process (PID = 550)
+Hello from the child process (PID = 551)
+Hello from the child process (PID = 552)
+Hello from the child process (PID = 553)
+Hello from the child process (PID = 554)
+Hello from the child process (PID = 555)
+Hello from the child process (PID = 556)
+Hello from the child process (PID = 557)
+Hello from the child process (PID = 558)
+Hello from the child process (PID = 559)
+Hello from the child process (PID = 560)
+Hello from the child process (PID = 561)
+Hello from the child process (PID = 562)
+Hello from the child process (PID = 563)
+Hello from the child process (PID = 564)
+Hello from the child process (PID = 565)
+Hello from the child process (PID = 566)
+Hello from the child process (PID = 567)
+Hello from the child process (PID = 568)
+Hello from the child process (PID = 569)
+Hello from the child process (PID = 570)
+Hello from the child process (PID = 571)
+Hello from the child process (PID = 572)
+Hello from the child process (PID = 573)
+Hello from the child process (PID = 574)
+Hello from the child process (PID = 575)
+Hello from the child process (PID = 576)
+Hello from the child process (PID = 577)
+Hello from the child process (PID = 578)
+Hello from the child process (PID = 579)
+Hello from the child process (PID = 580)
+Hello from the child process (PID = 581)
+Hello from the child process (PID = 582)
+Hello from the child process (PID = 583)
+Hello from the child process (PID = 584)
+Hello from the child process (PID = 585)
+Hello from the child process (PID = 586)
+Hello from the child process (PID = 587)
+Hello from the child process (PID = 588)
+Hello from the child process (PID = 589)
+Hello from the child process (PID = 590)
+Hello from the child process (PID = 592)
+Hello from the child process (PID = 593)
+Hello from the child process (PID = 594)
+Hello from the child process (PID = 595)
+Hello from the child process (PID = 596)
+Hello from the child process (PID = 597)
+Hello from the child process (PID = 598)
+Hello from the child process (PID = 599)
+Hello from the child process (PID = 600)
+Hello from the child process (PID = 601)
+Hello from the child process (PID = 602)
+Hello from the child process (PID = 603)
+Hello from the child process (PID = 604)
+Hello from the child process (PID = 605)
+Hello from the child process (PID = 606)
+Hello from the child process (PID = 607)
+Hello from the child process (PID = 608)
+Hello from the child process (PID = 609)
+Hello from the child process (PID = 610)
+Hello from the child process (PID = 611)
+Hello from the child process (PID = 612)
+Hello from the child process (PID = 613)
+Hello from the child process (PID = 614)
+Hello from the child process (PID = 615)
+Hello from the child process (PID = 616)
+Hello from the child process (PID = 617)
+Hello from the child process (PID = 618)
+Hello from the child process (PID = 619)
+Hello from the child process (PID = 620)
+Hello from the child process (PID = 621)
+Hello from the child process (PID = 622)
+Hello from the child process (PID = 623)
+Hello from the child process (PID = 624)
+Hello from the child process (PID = 625)
+Hello from the child process (PID = 626)
+Hello from the child process (PID = 627)
+Hello from the child process (PID = 628)
+Hello from the child process (PID = 629)
+Hello from the child process (PID = 630)
+Hello from the child process (PID = 631)
+Hello from the child process (PID = 632)
+Hello from the child process (PID = 633)
+Hello from the child process (PID = 634)
+Hello from the child process (PID = 635)
+Hello from the child process (PID = 636)
+Hello from the child process (PID = 637)
+Hello from the child process (PID = 638)
+Hello from the child process (PID = 639)
+Hello from the child process (PID = 640)
+Hello from the child process (PID = 641)
+Hello from the child process (PID = 642)
+Hello from the child process (PID = 643)
+Hello from the child process (PID = 644)
+Hello from the child process (PID = 645)
+Hello from the child process (PID = 646)
+Hello from the child process (PID = 647)
+Average Split time for fork() was 0.00592275
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -process -  thread
+Hello from the child process (PID = 653)
+Hello from the child process (PID = 654)
+Hello from the child process (PID = 655)
+Hello from the child process (PID = 656)
+Hello from the child process (PID = 657)
+Hello from the child process (PID = 658)
+Hello from the child process (PID = 659)
+Hello from the child process (PID = 660)
+Hello from the child process (PID = 661)
+Hello from the child process (PID = 662)
+Hello from the child process (PID = 663)
+Hello from the child process (PID = 664)
+Hello from the child process (PID = 665)
+Hello from the child process (PID = 666)
+Hello from the child process (PID = 667)
+Hello from the child process (PID = 668)
+Hello from the child process (PID = 669)
+Hello from the child process (PID = 670)
+Hello from the child process (PID = 671)
+Hello from the child process (PID = 672)
+Hello from the child process (PID = 673)
+Hello from the child process (PID = 674)
+Hello from the child process (PID = 675)
+Hello from the child process (PID = 676)
+Hello from the child process (PID = 677)
+Hello from the child process (PID = 678)
+Hello from the child process (PID = 679)
+Hello from the child process (PID = 680)
+Hello from the child process (PID = 681)
+Hello from the child process (PID = 682)
+Hello from the child process (PID = 683)
+Hello from the child process (PID = 684)
+Hello from the child process (PID = 685)
+Hello from the child process (PID = 686)
+Hello from the child process (PID = 687)
+Hello from the child process (PID = 688)
+Hello from the child process (PID = 689)
+Hello from the child process (PID = 690)
+Hello from the child process (PID = 691)
+Hello from the child process (PID = 692)
+Hello from the child process (PID = 693)
+Hello from the child process (PID = 694)
+Hello from the child process (PID = 695)
+Hello from the child process (PID = 696)
+Hello from the child process (PID = 697)
+Hello from the child process (PID = 698)
+Hello from the child process (PID = 699)
+Hello from the child process (PID = 700)
+Hello from the child process (PID = 701)
+Hello from the child process (PID = 702)
+Hello from the child process (PID = 703)
+Hello from the child process (PID = 704)
+Hello from the child process (PID = 705)
+Hello from the child process (PID = 706)
+Hello from the child process (PID = 707)
+Hello from the child process (PID = 708)
+Hello from the child process (PID = 709)
+Hello from the child process (PID = 710)
+Hello from the child process (PID = 711)
+Hello from the child process (PID = 712)
+Hello from the child process (PID = 713)
+Hello from the child process (PID = 714)
+Hello from the child process (PID = 716)
+Hello from the child process (PID = 718)
+Hello from the child process (PID = 719)
+Hello from the child process (PID = 720)
+Hello from the child process (PID = 721)
+Hello from the child process (PID = 722)
+Hello from the child process (PID = 723)
+Hello from the child process (PID = 724)
+Hello from the child process (PID = 725)
+Hello from the child process (PID = 726)
+Hello from the child process (PID = 727)
+Hello from the child process (PID = 728)
+Hello from the child process (PID = 729)
+Hello from the child process (PID = 730)
+Hello from the child process (PID = 731)
+Hello from the child process (PID = 732)
+Hello from the child process (PID = 733)
+Hello from the child process (PID = 734)
+Hello from the child process (PID = 735)
+Hello from the child process (PID = 736)
+Hello from the child process (PID = 737)
+Hello from the child process (PID = 738)
+Hello from the child process (PID = 739)
+Hello from the child process (PID = 740)
+Hello from the child process (PID = 741)
+Hello from the child process (PID = 742)
+Hello from the child process (PID = 743)
+Hello from the child process (PID = 744)
+Hello from the child process (PID = 745)
+Hello from the child process (PID = 746)
+Hello from the child process (PID = 747)
+Hello from the child process (PID = 748)
+Hello from the child process (PID = 749)
+Hello from the child process (PID = 750)
+Hello from the child process (PID = 751)
+Hello from the child process (PID = 752)
+Hello from the child process (PID = 753)
+Hello from the child process (PID = 754)
+Average Split time for fork() was 0.0053801
+Hello from child thread (TID = 0)
+Hello from child thread (TID = 1)
+Hello from child thread (TID = 2)
+Hello from child thread (TID = 3)
+Hello from child thread (TID = 4)
+Hello from child thread (TID = 5)
+Hello from child thread (TID = 6)
+Hello from child thread (TID = 7)
+Hello from child thread (TID = 8)
+Hello from child thread (TID = 9)
+Hello from child thread (TID = 10)
+Hello from child thread (TID = 11)
+Hello from child thread (TID = 12)
+Hello from child thread (TID = 13)
+Hello from child thread (TID = 14)
+Hello from child thread (TID = 15)
+Hello from child thread (TID = 16)
+Hello from child thread (TID = 17)
+Hello from child thread (TID = 18)
+Hello from child thread (TID = 19)
+Hello from child thread (TID = 20)
+Hello from child thread (TID = 21)
+Hello from child thread (TID = 22)
+Hello from child thread (TID = 23)
+Hello from child thread (TID = 24)
+Hello from child thread (TID = 25)
+Hello from child thread (TID = 26)
+Hello from child thread (TID = 27)
+Hello from child thread (TID = 28)
+Hello from child thread (TID = 29)
+Hello from child thread (TID = 30)
+Hello from child thread (TID = 31)
+Hello from child thread (TID = 32)
+Hello from child thread (TID = 33)
+Hello from child thread (TID = 34)
+Hello from child thread (TID = 35)
+Hello from child thread (TID = 36)
+Hello from child thread (TID = 37)
+Hello from child thread (TID = 38)
+Hello from child thread (TID = 39)
+Hello from child thread (TID = 40)
+Hello from child thread (TID = 41)
+Hello from child thread (TID = 42)
+Hello from child thread (TID = 43)
+Hello from child thread (TID = 44)
+Hello from child thread (TID = 45)
+Hello from child thread (TID = 46)
+Hello from child thread (TID = 47)
+Hello from child thread (TID = 48)
+Hello from child thread (TID = 49)
+Hello from child thread (TID = 50)
+Hello from child thread (TID = 51)
+Hello from child thread (TID = 52)
+Hello from child thread (TID = 53)
+Hello from child thread (TID = 54)
+Hello from child thread (TID = 55)
+Hello from child thread (TID = 56)
+Hello from child thread (TID = 57)
+Hello from child thread (TID = 58)
+Hello from child thread (TID = 59)
+Hello from child thread (TID = 60)
+Hello from child thread (TID = 61)
+Hello from child thread (TID = 62)
+Hello from child thread (TID = 63)
+Hello from child thread (TID = 64)
+Hello from child thread (TID = 65)
+Hello from child thread (TID = 66)
+Hello from child thread (TID = 67)
+Hello from child thread (TID = 68)
+Hello from child thread (TID = 69)
+Hello from child thread (TID = 70)
+Hello from child thread (TID = 71)
+Hello from child thread (TID = 72)
+Hello from child thread (TID = 73)
+Hello from child thread (TID = 74)
+Hello from child thread (TID = 75)
+Hello from child thread (TID = 76)
+Hello from child thread (TID = 77)
+Hello from child thread (TID = 78)
+Hello from child thread (TID = 79)
+Hello from child thread (TID = 80)
+Hello from child thread (TID = 81)
+Hello from child thread (TID = 82)
+Hello from child thread (TID = 83)
+Hello from child thread (TID = 84)
+Hello from child thread (TID = 85)
+Hello from child thread (TID = 86)
+Hello from child thread (TID = 87)
+Hello from child thread (TID = 88)
+Hello from child thread (TID = 89)
+Hello from child thread (TID = 90)
+Hello from child thread (TID = 91)
+Hello from child thread (TID = 92)
+Hello from child thread (TID = 93)
+Hello from child thread (TID = 94)
+Hello from child thread (TID = 95)
+Hello from child thread (TID = 96)
+Hello from child thread (TID = 97)
+Hello from child thread (TID = 98)
+Average Split time for Thread() was Hello from child thread (TID = 99)
+0.000705485
+ekm6@gold21:~/CS232/proj_01/Debug$ ./proj_01 -r100 -process -thread     s[1P[1P[1P[1P[1P[1P
+Hello from the child process (PID = 856)
+Hello from the child process (PID = 857)
+Hello from the child process (PID = 858)
+Hello from the child process (PID = 859)
+Hello from the child process (PID = 860)
+Hello from the child process (PID = 861)
+Hello from the child process (PID = 862)
+Hello from the child process (PID = 863)
+Hello from the child process (PID = 864)
+Hello from the child process (PID = 865)
+Hello from the child process (PID = 866)
+Hello from the child process (PID = 867)
+Hello from the child process (PID = 868)
+Hello from the child process (PID = 869)
+Hello from the child process (PID = 870)
+Hello from the child process (PID = 871)
+Hello from the child process (PID = 872)
+Hello from the child process (PID = 873)
+Hello from the child process (PID = 874)
+Hello from the child process (PID = 875)
+Hello from the child process (PID = 876)
+Hello from the child process (PID = 877)
+Hello from the child process (PID = 878)
+Hello from the child process (PID = 879)
+Hello from the child process (PID = 880)
+Hello from the child process (PID = 881)
+Hello from the child process (PID = 882)
+Hello from the child process (PID = 883)
+Hello from the child process (PID = 884)
+Hello from the child process (PID = 885)
+Hello from the child process (PID = 886)
+Hello from the child process (PID = 887)
+Hello from the child process (PID = 888)
+Hello from the child process (PID = 889)
+Hello from the child process (PID = 890)
+Hello from the child process (PID = 891)
+Hello from the child process (PID = 892)
+Hello from the child process (PID = 893)
+Hello from the child process (PID = 894)
+Hello from the child process (PID = 895)
+Hello from the child process (PID = 897)
+Hello from the child process (PID = 898)
+Hello from the child process (PID = 899)
+Hello from the child process (PID = 900)
+Hello from the child process (PID = 901)
+Hello from the child process (PID = 902)
+Hello from the child process (PID = 903)
+Hello from the child process (PID = 904)
+Hello from the child process (PID = 906)
+Hello from the child process (PID = 907)
+Hello from the child process (PID = 908)
+Hello from the child process (PID = 911)
+Hello from the child process (PID = 912)
+Hello from the child process (PID = 913)
+Hello from the child process (PID = 914)
+Hello from the child process (PID = 915)
+Hello from the child process (PID = 916)
+Hello from the child process (PID = 917)
+Hello from the child process (PID = 918)
+Hello from the child process (PID = 919)
+Hello from the child process (PID = 920)
+Hello from the child process (PID = 921)
+Hello from the child process (PID = 923)
+Hello from the child process (PID = 924)
+Hello from the child process (PID = 925)
+Hello from the child process (PID = 926)
+Hello from the child process (PID = 927)
+Hello from the child process (PID = 928)
+Hello from the child process (PID = 929)
+Hello from the child process (PID = 930)
+Hello from the child process (PID = 931)
+Hello from the child process (PID = 932)
+Hello from the child process (PID = 933)
+Hello from the child process (PID = 934)
+Hello from the child process (PID = 935)
+Hello from the child process (PID = 936)
+Hello from the child process (PID = 937)
+Hello from the child process (PID = 938)
+Hello from the child process (PID = 939)
+Hello from the child process (PID = 940)
+Hello from the child process (PID = 941)
+Hello from the child process (PID = 942)
+Hello from the child process (PID = 943)
+Hello from the child process (PID = 944)
+Hello from the child process (PID = 945)
+Hello from the child process (PID = 947)
+Hello from the child process (PID = 949)
+Hello from the child process (PID = 952)
+Hello from the child process (PID = 953)
+Hello from the child process (PID = 954)
+Hello from the child process (PID = 955)
+Hello from the child process (PID = 956)
+Hello from the child process (PID = 957)
+Hello from the child process (PID = 958)
+Hello from the child process (PID = 960)
+Hello from the child process (PID = 961)
+Hello from the child process (PID = 965)
+Hello from the child process (PID = 967)
+Hello from the child process (PID = 968)
+Hello from the child process (PID = 969)
+Average Split time for fork() was 0.00558119
+Hello from child thread (TID = 0)
+Hello from child thread (TID = 1)
+Hello from child thread (TID = 2)
+Hello from child thread (TID = 3)
+Hello from child thread (TID = 4)
+Hello from child thread (TID = 5)
+Hello from child thread (TID = 6)
+Hello from child thread (TID = 7)
+Hello from child thread (TID = 8)
+Hello from child thread (TID = 9)
+Hello from child thread (TID = 10)
+Hello from child thread (TID = 11)
+Hello from child thread (TID = 12)
+Hello from child thread (TID = 13)
+Hello from child thread (TID = 14)
+Hello from child thread (TID = 15)
+Hello from child thread (TID = 16)
+Hello from child thread (TID = 17)
+Hello from child thread (TID = 18)
+Hello from child thread (TID = 19)
+Hello from child thread (TID = 20)
+Hello from child thread (TID = 21)
+Hello from child thread (TID = 22)
+Hello from child thread (TID = 23)
+Hello from child thread (TID = 24)
+Hello from child thread (TID = 25)
+Hello from child thread (TID = 26)
+Hello from child thread (TID = 27)
+Hello from child thread (TID = 28)
+Hello from child thread (TID = 29)
+Hello from child thread (TID = 30)
+Hello from child thread (TID = 31)
+Hello from child thread (TID = 32)
+Hello from child thread (TID = 33)
+Hello from child thread (TID = 34)
+Hello from child thread (TID = 35)
+Hello from child thread (TID = 36)
+Hello from child thread (TID = 37)
+Hello from child thread (TID = 38)
+Hello from child thread (TID = 39)
+Hello from child thread (TID = 40)
+Hello from child thread (TID = 41)
+Hello from child thread (TID = 42)
+Hello from child thread (TID = 43)
+Hello from child thread (TID = 44)
+Hello from child thread (TID = 45)
+Hello from child thread (TID = 46)
+Hello from child thread (TID = 47)
+Hello from child thread (TID = 48)
+Hello from child thread (TID = 49)
+Hello from child thread (TID = 50)
+Hello from child thread (TID = 51)
+Hello from child thread (TID = 52)
+Hello from child thread (TID = 53)
+Hello from child thread (TID = 54)
+Hello from child thread (TID = 55)
+Hello from child thread (TID = 56)
+Hello from child thread (TID = 57)
+Hello from child thread (TID = 58)
+Hello from child thread (TID = 59)
+Hello from child thread (TID = 60)
+Hello from child thread (TID = 61)
+Hello from child thread (TID = 62)
+Hello from child thread (TID = 63)
+Hello from child thread (TID = 64)
+Hello from child thread (TID = 65)
+Hello from child thread (TID = 66)
+Hello from child thread (TID = 67)
+Hello from child thread (TID = 68)
+Hello from child thread (TID = 69)
+Hello from child thread (TID = 70)
+Hello from child thread (TID = 71)
+Hello from child thread (TID = 72)
+Hello from child thread (TID = 73)
+Hello from child thread (TID = 74)
+Hello from child thread (TID = 75)
+Hello from child thread (TID = 76)
+Hello from child thread (TID = 77)
+Hello from child thread (TID = 78)
+Hello from child thread (TID = 79)
+Hello from child thread (TID = 80)
+Hello from child thread (TID = 81)
+Hello from child thread (TID = 82)
+Hello from child thread (TID = 83)
+Hello from child thread (TID = 84)
+Hello from child thread (TID = 85)
+Hello from child thread (TID = 86)
+Hello from child thread (TID = 87)
+Hello from child thread (TID = 88)
+Hello from child thread (TID = 89)
+Hello from child thread (TID = 90)
+Hello from child thread (TID = 91)
+Hello from child thread (TID = 92)
+Hello from child thread (TID = 93)
+Hello from child thread (TID = 94)
+Hello from child thread (TID = 95)
+Hello from child thread (TID = 96)
+Hello from child thread (TID = 97)
+Hello from child thread (TID = 98)
+Average Split time for Thread() was Hello from child thread (TID = 99)
+0.000726961
+ekm6@gold21:~/CS232/proj_01/Debug$ exit
+
+Script done on Wed 13 Feb 2019 09:12:59 PM EST

@@ -1,0 +1,144 @@
+#!/bin/sh
+# Enoch Mwesigwa
+#CS 232: Project 2
+# 3/06/2019
+
+clean_files() {
+#collect files in directory
+DIR=$(ls -a $1)
+
+#extra credit variables
+userInput=$2
+DISPLAY=$3
+Stats=$4
+delFiles=$5
+
+
+#echo "Directory: " $DIR
+for file in $DIR
+do
+   
+    #check if directory
+    if [ -d $1/$file ] && [ $file != '.' ] && [ $file != '..' ]; then 
+        echo "Directory: " $1/$file
+
+    #recurse through files in directory   
+    clean_files $1/$file $userInput $DISPLAY $Stats $NumFiles
+
+    #check if file
+    elif [ $/file ] && [ $file != '.' ] && [ $file != '..' ]; then
+        echo "File: " $file
+    
+        #clean extrenous files files 
+        case "$file" in 
+           *["~"]*) 
+               remove="y"
+                if test $userInput = true; then
+                    echo "Would you like to delete the file? (y/n)"
+                    read remove
+                fi
+                if test $remove = "y"; then 
+                    if test $DISPLAY = true; then
+                        echo "File: " $1/$file "was deleted"
+                    fi
+                    #rm $1/file
+                    delFiles=$((delFiles +1)) 
+                fi ;;
+        
+            *["#"]*)
+                remove="y"
+                if test $userInput = true; then
+                    echo "Would you like to delete the file? (y/n)"
+                    read remove
+                fi
+                if test $remove = "y"; then 
+                    if test $DISPLAY = true; then
+                        echo "File: " $1/$file "was deleted"
+                    fi
+                    #rm $1/file
+                    delFiles=$((delFiles +1)) 
+                fi ;;
+            
+            *["core"]*)
+                remove="y"
+                if test $userInput = true; then
+                    echo "Would you like to delete the file? (y/n)"
+                    read remove
+                fi
+                if test $remove = "y"; then 
+                    if test $DISPLAY = true; then
+                        echo "File: " $1/$file "was deleted"
+                    fi
+                    #rm $1/file
+                    delFiles=$((delFiles +1)) 
+                fi ;;
+            *[".o"]*)
+                remove="y"
+                if test $userInput = true; then
+                    echo "Would you like to delete the file? (y/n)"
+                    read remove
+                fi
+                if test $remove = "y"; then 
+                    if test $DISPLAY = true; then
+                        echo "File: " $1/$file "was deleted"
+                    fi
+                    #rm $1/file
+                    delFiles=$((delFiles +1)) 
+                fi ;;
+            esac
+        #if executable (except self)
+        if [ -x $1/$file ] && [ "$file" != "clean" ]; then
+        remove="y"
+        if test $userInput = true; then
+            echo "Would you like to delete the file? (y/n)"
+            read remove
+        fi
+        if test $remove = "y"; then 
+            if test $DISPLAY = true; then
+                echo "File: " $1/$file "was deleted"
+            fi
+            #rm $1/file
+            delFiles=$((delFiles +1)) 
+        fi 
+    fi
+    fi
+done
+}
+
+#commands to pass
+delFiles="0"
+i="false"
+q="true"
+s="false"
+fileName="."
+
+#parse commandline
+for var in "$@"
+do
+    if test $var = "-i" || test $var = "--interactive" ; then
+        unset i
+        i="true"  
+    
+    elif test $var = "-q" || test $var = "--quiet" ; then
+        unset q
+        q="false" 
+    
+    elif test $var = "-s" || test $var = "--stats"; then
+        echo "Size Before: " && du -sh * | grep 2019
+        unset s
+        s="true"
+    elif test $var != "0"; then   
+        fileName=$var 
+    fi
+
+done
+
+#run the function to clean
+clean_files $fileName $i $q $s $NumFiles
+
+
+#display stats (if applicable)
+if [ "$s" = "true" ]; then
+    echo "Number of Files deleted: " $delFiles
+    echo "Size After: " && du -sh * | grep 2019
+fi 

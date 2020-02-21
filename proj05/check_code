@@ -1,0 +1,33 @@
+ if (clientInput.matches("-?\\d+(\\.\\d+)?") )
+					{
+						rotNum = Integer.parseInt(clientInput);
+
+						if (rotNum < 27 && rotNum > 0 )
+						{  
+                     //System.out.println("Number " + clientInput + " was valid");
+                     System.out.println("Enter a string to be ciphered:\n");
+                     String inputLine;
+                     StringBuffer text;
+                     while ((inputLine = in.readLine()) != null)
+                     {  
+                        System.out.println("encrypting...\n");
+                        text = encrypt(clientInput, rotNum);
+                        System.out.println("sending...\n");
+                        out.println(inputLine);
+                        System.out.println("completed...\n ");
+                     }
+                     
+						}
+						else 
+						{  
+                     System.out.println("Value is not within 1-26.\nClosing thread.");
+							out.println("Value is not within 1-26.\nClosing thread.");
+							ThreadRuning = false;
+						}
+					} 
+					else
+					{  
+                  System.out.println("Value is not an integer. \nClosing thread");
+						out.println("Value is not an integer. \nClosing thread");
+						ThreadRuning = false;
+					}
